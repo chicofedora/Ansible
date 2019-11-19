@@ -1,0 +1,54 @@
+- hosts: all
+  gather_facts: no
+  tasks:
+   - name: Download Katello CA rpm
+     get_url:
+       url: http://satellite.example.com/pub/katello-ca-consumer-latest.noarch.rpm
+       dest: /tmp/katello-ca-consumer-latest.noarch.rpm
+       mode: '0440'
+
+   - name: install Katello CA rpm from a local file
+     yum:
+       name: /tmp/katello-ca-consumer-latest.noarch.rpm
+       state: present
+
+   - name: Register with activationkey
+     redhat_subscription:
+       state: present
+       activationkey: key_rhel7_base
+       org_id: Example
+
+   - name: Enable all RHSM repositories
+     rhsm_repository:
+       name: '*'
+       state: enabled
+
+   - name: Install packages
+     yum:
+       name: 
+         - katello-host-tools 
+         - katello-host-tools-tracer 
+         - katello-agent
+         - insights-client
+         - vim
+         - wget
+         - mlocate
+         - puppet
+       state: present
+
+   - name: Start and enabled service Puppet agent
+     systemd:
+       name: puppet
+       state: started
+       enabled: true
+
+   - name: Start and enabled service katello agent
+     systemd:
+       name: goferd
+       state: started
+       enabled: true
+
+   - name: upgrade all packages
+     yum:
+       name: '*'
+       state: latest
