@@ -1,0 +1,5 @@
+- hosts: all
+  gather_facts: no
+  tasks:
+   - name: Lista resolv.conf
+     shell: cat /etc/resolv.conf
